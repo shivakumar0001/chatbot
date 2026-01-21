@@ -56,6 +56,34 @@ class Database {
       )
     `);
 
+    // Create file_uploads table for tracking uploaded files
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS file_uploads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        filename TEXT NOT NULL,
+        original_name TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        file_size INTEGER NOT NULL,
+        mime_type TEXT NOT NULL,
+        upload_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES users (session_id)
+      )
+    `);
+
+    // Create generated_images table for tracking AI-generated images
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS generated_images (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        prompt TEXT NOT NULL,
+        image_url TEXT,
+        image_path TEXT,
+        generation_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES users (session_id)
+      )
+    `);
+
     console.log('✅ Database tables created/verified');
   }
 
@@ -203,6 +231,74 @@ class Database {
           resolve(rows[0] || {});
         }
       });
+    });
+  }
+
+  // Save file upload record
+  async saveFileUpload(sessionId, filename, originalName, filePath, fileSize, mimeType) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'INSERT INTO file_uploads (session_id, filename, original_name, file_path, file_size, mime_type) VALUES (?, ?, ?, ?, ?, ?)',
+        [sessionId, filename, originalName, filePath, fileSize, mimeType],
+        function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ id: this.lastID });
+          }
+        }
+      );
+    });
+  }
+
+  // Save generated image record
+  async saveGeneratedImage(sessionId, prompt, imagePath) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'INSERT INTO generated_images (session_id, prompt, image_path) VALUES (?, ?, ?)',
+        [sessionId, prompt, imagePath],
+        function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ id: this.lastID });
+          }
+        }
+      );
+    });
+  }
+
+  // Get uploaded files for a session
+  async getSessionFiles(sessionId) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM file_uploads WHERE session_id = ? ORDER BY upload_timestamp DESC',
+        [sessionId],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows || []);
+          }
+        }
+      );
+    });
+  }
+
+  // Get generated images for a session
+  async getSessionImages(sessionId) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM generated_images WHERE session_id = ? ORDER BY generation_timestamp DESC',
+        [sessionId],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows || []);
+          }
+        }
+      );
     });
   }
 

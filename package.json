@@ -13,7 +13,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "sqlite3": "^5.1.6",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "multer": "^1.4.5-lts.1",
+    "fs-extra": "^11.2.0",
+    "mime-types": "^2.1.35",
+    "axios": "^1.6.2"
   },
   "keywords": ["chatbot", "gemini", "ai", "nodejs", "express", "web"],
   "author": "",

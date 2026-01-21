@@ -7,33 +7,78 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="chat-header">
-            <h1>🤖 AI Chatbot</h1>
-            <div class="header-buttons">
-                <button id="statsBtn" class="header-btn">📊 Stats</button>
-                <button id="exportBtn" class="header-btn">📥 Export</button>
-                <button id="clearBtn" class="clear-btn">Clear Chat</button>
+    <div class="app-container">
+        <!-- Sidebar with chat history -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🤖 AI Chatbot</h2>
+                <button id="newChatBtn" class="new-chat-btn">+ New Chat</button>
             </div>
-        </div>
-        
-        <div class="chat-container">
-            <div id="chatMessages" class="chat-messages">
-                <div class="message bot-message">
-                    <div class="message-content">
-                        <strong>Bot:</strong> Hello! I'm your AI assistant. How can I help you today?
+            
+            <div class="sidebar-content">
+                <div class="recent-chats">
+                    <h3>Recent Chats</h3>
+                    <div id="chatHistory" class="chat-history">
+                        <!-- Chat history items will be populated here -->
                     </div>
+                </div>
+                
+                <div class="sidebar-footer">
+                    <button id="statsBtn" class="sidebar-btn">📊 Statistics</button>
+                    <button id="exportBtn" class="sidebar-btn">📥 Export</button>
                 </div>
             </div>
         </div>
-        
-        <div class="input-container">
-            <input type="text" id="messageInput" placeholder="Type your message here..." maxlength="500">
-            <button id="sendBtn">Send</button>
+
+        <!-- Mobile sidebar toggle -->
+        <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+        <!-- Main chat area -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <h1 id="currentChatTitle">New Conversation</h1>
+                    <span id="sessionInfo" class="session-info"></span>
+                </div>
+                <div class="header-actions">
+                    <button id="clearBtn" class="header-btn">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="welcome-message">
+                        <div class="welcome-content">
+                            <h2>👋 Welcome to AI Chatbot</h2>
+                            <p>I'm your AI assistant powered by Google's Gemini. I can help you with:</p>
+                            <ul>
+                                <li>💬 Answer questions and have conversations</li>
+                                <li>📎 Analyze uploaded images and documents</li>
+                                <li>🎨 Generate images from text descriptions</li>
+                                <li>📊 Provide insights and explanations</li>
+                            </ul>
+                            <p>Start by typing a message below or upload a file to analyze!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <div class="file-upload-section">
+                    <input type="file" id="fileInput" accept="image/*,text/*,.pdf,.doc,.docx,.json,.csv" style="display: none;">
+                    <button id="fileBtn" class="action-btn" title="Upload File">📎</button>
+                    <button id="imageGenBtn" class="action-btn" title="Generate Image">🎨</button>
+                    <div id="filePreview" class="file-preview"></div>
+                </div>
+                <div class="message-input-section">
+                    <input type="text" id="messageInput" placeholder="Type your message here..." maxlength="1000">
+                    <button id="sendBtn" class="send-btn">Send</button>
+                </div>
+            </div>
+            
+            <div class="status" id="status"></div>
         </div>
-        
-        <div class="status" id="status"></div>
-        
+
         <!-- Stats Modal -->
         <div id="statsModal" class="modal">
             <div class="modal-content">

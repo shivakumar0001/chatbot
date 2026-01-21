@@ -11,6 +11,9 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 - 🤖 **Powered by Gemini 2.5 Flash** - Fast and intelligent responses
 - 💬 **Real-time Chat Interface** - Smooth, responsive web UI
 - 🗄️ **SQLite Database** - Persistent conversation storage
+- 📎 **File Upload Support** - Upload and analyze images, documents, and text files
+- 🎨 **AI Image Generation** - Generate images using Nano Banana (Gemini image model)
+- 🖼️ **Image Analysis** - Analyze uploaded images with AI vision
 - 🧠 **Conversation Memory** - Maintains context across sessions
 - 📊 **Chat Statistics** - View usage analytics
 - 📥 **Export Conversations** - Download chat history as JSON
@@ -60,10 +63,11 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 
 - **Backend:** Node.js, Express.js
 - **Database:** SQLite (with upgrade path to PostgreSQL/MySQL)
-- **AI:** Google Gemini 2.5 Flash API
+- **AI:** Google Gemini 2.5 Flash API + Nano Banana (Image Generation)
+- **File Handling:** Multer for uploads, fs-extra for file management
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
 - **Styling:** Modern CSS with gradients and animations
-- **API:** RESTful endpoints for chat functionality
+- **API:** RESTful endpoints for chat, files, and image generation
 
 ## 📁 Project Structure
 
@@ -73,6 +77,8 @@ gemini-chatbot/
 │   ├── index.html      # Main web interface
 │   ├── style.css       # Styling and animations
 │   └── script.js       # Frontend JavaScript
+├── uploads/            # User uploaded files (auto-created)
+├── generated-images/   # AI generated images (auto-created)
 ├── server.js           # Express server and API routes
 ├── database.js         # SQLite database management
 ├── package.json        # Dependencies and scripts
@@ -103,36 +109,56 @@ Available models:
 
 ## 🎯 API Endpoints
 
+### Chat & AI
 - `GET /` - Serve the main chat interface
-- `POST /api/chat` - Send message and get AI response
+- `POST /api/chat` - Send message and get AI response (supports file analysis and image generation)
 - `POST /api/clear` - Clear conversation history
+
+### File Management
+- `POST /api/upload` - Upload files (images, documents, text files)
+- `GET /api/files/:sessionId` - Get uploaded files for a session
+- `GET /uploads/:filename` - Serve uploaded files
+- `GET /generated-images/:filename` - Serve generated images
+
+### Data & Analytics
 - `GET /api/history/:sessionId` - Get conversation history
 - `GET /api/stats` - Get chat statistics
 - `GET /api/export/:sessionId` - Export conversation data
 
-## 🗄️ Database Schema
+## 📎 File Upload Support
 
-The chatbot uses SQLite with three main tables:
+**Supported File Types:**
+- **Images:** JPEG, PNG, GIF, WebP (up to 10MB)
+- **Documents:** PDF, DOC, DOCX
+- **Text Files:** TXT, JSON, CSV
+- **Analysis:** AI can analyze image content and read text files
 
-### Users Table
-- `id` - Primary key
-- `session_id` - Unique session identifier
-- `created_at` - Account creation timestamp
-- `last_active` - Last activity timestamp
+## 🎨 Image Generation
 
-### Chat Messages Table
+**Nano Banana Integration:**
+- Click the 🎨 button to enter image generation mode
+- Describe the image you want to create
+- AI will generate images based on your description
+- Generated images are saved and can be downloaded
+
+## 🗄️ Enhanced Database Schema
+
+### File Uploads Table
 - `id` - Primary key
 - `session_id` - Foreign key to users
-- `role` - Message role (user/assistant)
-- `content` - Message content
-- `timestamp` - Message timestamp
+- `filename` - Stored filename
+- `original_name` - Original filename
+- `file_path` - File storage path
+- `file_size` - File size in bytes
+- `mime_type` - File MIME type
+- `upload_timestamp` - Upload time
 
-### Conversations Table
+### Generated Images Table
 - `id` - Primary key
 - `session_id` - Foreign key to users
-- `message` - User message
-- `response` - Bot response
-- `timestamp` - Conversation timestamp
+- `prompt` - Image generation prompt
+- `image_path` - Generated image path
+- `generation_timestamp` - Generation time
 
 ## 🤝 Contributing
 
