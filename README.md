@@ -9,18 +9,19 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 ## ✨ Features
 
 - 🤖 **Powered by Gemini 2.5 Flash** - Fast and intelligent responses
-- 💬 **Real-time Chat Interface** - Smooth, responsive web UI
+- 💬 **Modern Chat Interface** - Professional sidebar with chat history
 - 🗄️ **SQLite Database** - Persistent conversation storage
 - 📎 **File Upload Support** - Upload and analyze images, documents, and text files
-- 🎨 **AI Image Generation** - Generate images using Nano Banana (Gemini image model)
+- 🎨 **Real Image Generation** - Generate actual images using multiple AI services
 - 🖼️ **Image Analysis** - Analyze uploaded images with AI vision
-- 🧠 **Conversation Memory** - Maintains context across sessions
-- 📊 **Chat Statistics** - View usage analytics
+- 🔍 **Fullscreen Image Viewer** - Click any image to view it fullscreen
+- 🧠 **Smart Chat History** - Sidebar with recent conversations and easy switching
+- 📊 **Chat Statistics** - View usage analytics and session data
 - 📥 **Export Conversations** - Download chat history as JSON
-- 🎨 **Modern Design** - Beautiful gradient UI with animations
-- 📱 **Mobile Responsive** - Works perfectly on all devices
-- 🔄 **Clear Chat Function** - Start fresh conversations anytime
-- ⚡ **Fast Performance** - Optimized for quick responses
+- 📱 **Fully Responsive** - Perfect experience on desktop, tablet, and mobile
+- 🎨 **Modern Design** - Beautiful gradient UI with smooth animations
+- 🔄 **Multiple Fallbacks** - Reliable image generation with backup methods
+- ⚡ **Fast Performance** - Optimized for quick responses and smooth interactions
 
 ## 🚀 Quick Start
 
@@ -63,10 +64,11 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 
 - **Backend:** Node.js, Express.js
 - **Database:** SQLite (with upgrade path to PostgreSQL/MySQL)
-- **AI:** Google Gemini 2.5 Flash API + Nano Banana (Image Generation)
+- **AI:** Google Gemini 2.5 Flash API
+- **Image Generation:** Pollinations AI, Picsum Photos, Custom SVG Generation
 - **File Handling:** Multer for uploads, fs-extra for file management
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
-- **Styling:** Modern CSS with gradients and animations
+- **Styling:** Modern CSS with gradients, animations, and responsive design
 - **API:** RESTful endpoints for chat, files, and image generation
 
 ## 📁 Project Structure
@@ -133,13 +135,41 @@ Available models:
 - **Text Files:** TXT, JSON, CSV
 - **Analysis:** AI can analyze image content and read text files
 
-## 🎨 Image Generation
+## 🎨 Real Image Generation
 
-**Nano Banana Integration:**
-- Click the 🎨 button to enter image generation mode
-- Describe the image you want to create
-- AI will generate images based on your description
-- Generated images are saved and can be downloaded
+**Multiple Generation Methods:**
+- **Pollinations AI** - Primary method for high-quality AI-generated images
+- **Picsum Photos** - Creative fallback using beautiful random photography
+- **Custom SVG** - Attractive gradient placeholders with prompt text
+
+**How to Generate Images:**
+1. Click the 🎨 button (turns red when active)
+2. Describe the image you want (e.g., "a sunset over mountains")
+3. Send your message
+4. Wait 3-5 seconds for generation
+5. Click the generated image to view it fullscreen
+
+**Image Features:**
+- **512x512 Resolution** - High-quality output
+- **Click to Enlarge** - Fullscreen viewer with keyboard support
+- **Auto-Save** - All images saved to database and local storage
+- **Right-click to Download** - Save images to your device
+- **Mobile Optimized** - Perfect display on all screen sizes
+
+## 📱 Modern Interface
+
+**Professional Layout:**
+- **Left Sidebar** - Dark theme with recent chat history
+- **Main Chat Area** - Clean, modern messaging interface
+- **Smart Navigation** - Easy switching between conversations
+- **Mobile Responsive** - Collapsible sidebar with touch-friendly controls
+
+**Chat Management:**
+- **Recent Chats** - Sidebar shows last 20 conversations with previews
+- **Smart Titles** - Auto-generated from first message
+- **Session Persistence** - Chat history survives browser refresh
+- **One-Click Switching** - Tap any chat in sidebar to load it
+- **New Chat Button** - Start fresh conversations easily
 
 ## 🗄️ Enhanced Database Schema
 
