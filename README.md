@@ -10,7 +10,10 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 
 - 🤖 **Powered by Gemini 2.5 Flash** - Fast and intelligent responses
 - 💬 **Real-time Chat Interface** - Smooth, responsive web UI
-- 🧠 **Conversation Memory** - Maintains context during sessions
+- 🗄️ **SQLite Database** - Persistent conversation storage
+- 🧠 **Conversation Memory** - Maintains context across sessions
+- 📊 **Chat Statistics** - View usage analytics
+- 📥 **Export Conversations** - Download chat history as JSON
 - 🎨 **Modern Design** - Beautiful gradient UI with animations
 - 📱 **Mobile Responsive** - Works perfectly on all devices
 - 🔄 **Clear Chat Function** - Start fresh conversations anytime
@@ -56,6 +59,7 @@ A modern web-based chatbot built with Node.js and Google's Gemini AI API. Featur
 ## 🛠️ Technology Stack
 
 - **Backend:** Node.js, Express.js
+- **Database:** SQLite (with upgrade path to PostgreSQL/MySQL)
 - **AI:** Google Gemini 2.5 Flash API
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
 - **Styling:** Modern CSS with gradients and animations
@@ -70,9 +74,11 @@ gemini-chatbot/
 │   ├── style.css       # Styling and animations
 │   └── script.js       # Frontend JavaScript
 ├── server.js           # Express server and API routes
+├── database.js         # SQLite database management
 ├── package.json        # Dependencies and scripts
 ├── .env.example        # Environment variables template
 ├── .gitignore         # Git ignore rules
+├── chatbot.db         # SQLite database (auto-created)
 └── README.md          # Project documentation
 ```
 
@@ -100,6 +106,33 @@ Available models:
 - `GET /` - Serve the main chat interface
 - `POST /api/chat` - Send message and get AI response
 - `POST /api/clear` - Clear conversation history
+- `GET /api/history/:sessionId` - Get conversation history
+- `GET /api/stats` - Get chat statistics
+- `GET /api/export/:sessionId` - Export conversation data
+
+## 🗄️ Database Schema
+
+The chatbot uses SQLite with three main tables:
+
+### Users Table
+- `id` - Primary key
+- `session_id` - Unique session identifier
+- `created_at` - Account creation timestamp
+- `last_active` - Last activity timestamp
+
+### Chat Messages Table
+- `id` - Primary key
+- `session_id` - Foreign key to users
+- `role` - Message role (user/assistant)
+- `content` - Message content
+- `timestamp` - Message timestamp
+
+### Conversations Table
+- `id` - Primary key
+- `session_id` - Foreign key to users
+- `message` - User message
+- `response` - Bot response
+- `timestamp` - Conversation timestamp
 
 ## 🤝 Contributing
 

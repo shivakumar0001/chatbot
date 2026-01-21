@@ -2,6 +2,8 @@ const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cors = require('cors');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+const Database = require('./database');
 require('dotenv').config();
 
 const app = express();
@@ -18,13 +20,13 @@ if (!process.env.GEMINI_API_KEY) {
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Initialize Database
+const database = new Database();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
-
-// Store conversation history (in production, use a database)
-const conversations = new Map();
 
 // Serve the main page
 app.get('/', (req, res) => {
@@ -34,28 +36,27 @@ app.get('/', (req, res) => {
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, sessionId = 'default' } = req.body;
+    const { message, sessionId = uuidv4() } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    console.log('Received message:', message);
+    console.log('Received message:', message, 'Session:', sessionId);
 
-    // Get the generative model - using a working model name
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Create or get user session
+    await database.createOrGetUser(sessionId);
 
-    // Get or create conversation history
-    if (!conversations.has(sessionId)) {
-      conversations.set(sessionId, []);
-    }
+    // Get conversation history from database
+    const conversationHistory = await database.getConversationHistory(sessionId, 10);
     
-    const conversationHistory = conversations.get(sessionId);
+    // Get the generative model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     // Build conversation context
     let prompt = "You are a helpful AI assistant. Be friendly and concise in your responses.\n\n";
     
-    // Add conversation history
+    // Add conversation history from database
     conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
         prompt += `User: ${msg.content}\n`;
@@ -76,14 +77,12 @@ app.post('/api/chat', async (req, res) => {
     
     console.log('Received response from Gemini:', botResponse);
     
-    // Add to conversation history
-    conversationHistory.push({ role: 'user', content: message });
-    conversationHistory.push({ role: 'assistant', content: botResponse });
-
-    // Keep only last 10 exchanges (20 messages)
-    if (conversationHistory.length > 20) {
-      conversationHistory.splice(0, conversationHistory.length - 20);
-    }
+    // Save messages to database
+    await database.saveChatMessage(sessionId, 'user', message);
+    await database.saveChatMessage(sessionId, 'assistant', botResponse);
+    
+    // Also save the complete conversation
+    await database.saveConversation(sessionId, message, botResponse);
 
     res.json({ 
       response: botResponse,
@@ -101,15 +100,93 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // Clear conversation endpoint
-app.post('/api/clear', (req, res) => {
-  const { sessionId = 'default' } = req.body;
-  conversations.delete(sessionId);
-  console.log('Cleared conversation for session:', sessionId);
-  res.json({ message: 'Conversation cleared' });
+app.post('/api/clear', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    const result = await database.clearSessionHistory(sessionId);
+    console.log('Cleared conversation for session:', sessionId);
+    
+    res.json({ 
+      message: 'Conversation cleared',
+      deletedRows: result.deletedRows
+    });
+  } catch (error) {
+    console.error('Error clearing conversation:', error);
+    res.status(500).json({ error: 'Failed to clear conversation' });
+  }
+});
+
+// Get conversation history endpoint
+app.get('/api/history/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const conversations = await database.getSessionConversations(sessionId);
+    
+    res.json({ 
+      sessionId,
+      conversations
+    });
+  } catch (error) {
+    console.error('Error fetching conversation history:', error);
+    res.status(500).json({ error: 'Failed to fetch conversation history' });
+  }
+});
+
+// Get chat statistics endpoint
+app.get('/api/stats', async (req, res) => {
+  try {
+    const stats = await database.getChatStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching chat stats:', error);
+    res.status(500).json({ error: 'Failed to fetch chat statistics' });
+  }
+});
+
+// Export conversation data endpoint
+app.get('/api/export/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const history = await database.getConversationHistory(sessionId, 1000);
+    
+    // Format for export
+    const exportData = {
+      sessionId,
+      exportDate: new Date().toISOString(),
+      messageCount: history.length,
+      conversations: history
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="chat-export-${sessionId}.json"`);
+    res.json(exportData);
+  } catch (error) {
+    console.error('Error exporting conversation:', error);
+    res.status(500).json({ error: 'Failed to export conversation' });
+  }
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\nShutting down gracefully...');
+  database.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('\nShutting down gracefully...');
+  database.close();
+  process.exit(0);
 });
 
 app.listen(port, () => {
   console.log(`🚀 Gemini Chatbot server running at http://localhost:${port}`);
   console.log('Open your browser and go to http://localhost:3000');
   console.log('API Key loaded:', process.env.GEMINI_API_KEY ? 'Yes' : 'No');
+  console.log('Database: SQLite initialized');
 });
